@@ -1,8 +1,9 @@
 ---
 plan: morning-digest
-status: ready
+status: done
 owner: rook
 opened: 2026-10-29
+closed: 2026-10-18
 ---
 
 # Morning digest
@@ -75,3 +76,16 @@ The preview shows lane data on a public link (ADR 0003). Delete the object; the 
 resolving. Move this plan to `docs/plans/done/` with its issue list.
 
 Done when: the preview link returns nothing.
+
+## Issues
+
+| # | Issue | Blocked by | Worker | Closed |
+|---|-------|-----------|--------|--------|
+| 1 | Digest types: DigestRow + readNight signature | - | droid · glm-5.3-flash · heavy | 2026-10-18 |
+| 2 | Run log reader with tests on the 2026-10-28 night | #1 | droid · glm-5.3-flash · heavy | 2026-10-18 |
+| 3 | Digest page: GET /digest/:night | #1 | droid · glm-5.3-flash · medium | 2026-10-18 |
+| 4 | Digest JSON: GET /api/digest/:night | #1 | droid · glm-5.3-flash · medium | 2026-10-18 |
+| 5 | Status board: link nights to digests with counts | #2 | droid · glm-5.3-flash · light | 2026-10-18 |
+| 6 | Route tests for the digest page and JSON | #3, #4 | droid · glm-5.3-flash · light | 2026-10-18 |
+| 7 | Preview for review: one HTML file on a public link | #3 | droid · glm-5.3-flash · medium | 2026-10-18 |
+| 8 | Clean up: delete the preview, move the plan to done/ | #7 | droid · glm-5.3-flash · light | 2026-10-18 |
