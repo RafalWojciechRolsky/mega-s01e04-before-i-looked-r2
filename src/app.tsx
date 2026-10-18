@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { loadConfig, type RigConfig } from './config.js';
+import { countNight, type NightCounts } from './digest/counts.js';
 import { digestApi } from './digest/api.js';
 import { lane } from './lane.js';
 import { readStatus } from './status.js';
@@ -8,6 +9,21 @@ import { StatusBoard } from './views/status.js';
 import { DigestPage } from './views/digest.js';
 import { byJob } from './digest/sort.js';
 import type { DigestRow, ReadNight } from './digest/types.js';
+import type { NightCount } from './views/status.js';
+
+// Counts per night through the injected reader; a night that cannot be read renders
+// without counts instead of failing the board.
+function nightCounts(config: RigConfig, nights: string[], reader: ReadNight): NightCount[] {
+  return nights.map((night) => {
+    let counts: NightCounts | null = null;
+    try {
+      counts = countNight(reader(config.runsDir, night));
+    } catch {
+      counts = null;
+    }
+    return { night, counts };
+  });
+}
 
 // The reader is injected (issue #2 implements it); until it is merged, the digest routes are
 // not served.
@@ -18,13 +34,17 @@ export function createApp(config: RigConfig = loadConfig(), reader?: ReadNight) 
 
   if (reader) app.route('/api/digest', digestApi(config.runsDir, reader));
 
-  app.get('/', (c) =>
-    c.html(
+  app.get('/', (c) => {
+    const status = readStatus(config);
+    const nights = reader
+      ? nightCounts(config, status.nights, reader)
+      : status.nights.map((night) => ({ night, counts: null }));
+    return c.html(
       <Layout title="status" lane={lane()}>
-        <StatusBoard status={readStatus(config)} />
+        <StatusBoard status={status} nights={nights} />
       </Layout>,
-    ),
-  );
+    );
+  });
 
   // GET /digest/:night. A reader that cannot open the night's file throws, and the night
   // renders as 404.

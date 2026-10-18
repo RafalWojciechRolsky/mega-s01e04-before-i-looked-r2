@@ -1,6 +1,10 @@
+import type { NightCounts } from '../digest/counts.js';
 import type { Status } from '../status.js';
 
-export function StatusBoard({ status }: { status: Status }) {
+// Night name -> counts, or null when the night's file could not be read.
+export type NightCount = { night: string; counts: NightCounts | null };
+
+export function StatusBoard({ status, nights }: { status: Status; nights: NightCount[] }) {
   return (
     <>
       <h1>status</h1>
@@ -15,12 +19,20 @@ export function StatusBoard({ status }: { status: Status }) {
         </tbody>
       </table>
       <h2>nights on disk</h2>
-      {status.nights.length === 0 ? (
+      {nights.length === 0 ? (
         <p class="mute">nothing in runs/</p>
       ) : (
         <ul>
-          {status.nights.map((n) => (
-            <li>{n}</li>
+          {nights.map(({ night, counts }) => (
+            <li>
+              <a href={`/digest/${night}`}>{night}</a>
+              {' '}
+              {counts ? (
+                <span class="mute">ok {counts.ok} · retry {counts.retry} · fail {counts.fail}</span>
+              ) : (
+                <span class="mute">—</span>
+              )}
+            </li>
           ))}
         </ul>
       )}
