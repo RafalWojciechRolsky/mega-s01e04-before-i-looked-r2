@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { loadConfig, type RigConfig } from './config.js';
+import { digestApi } from './digest/api.js';
 import { lane } from './lane.js';
 import { readStatus } from './status.js';
 import { Layout } from './views/layout.js';
@@ -8,12 +9,14 @@ import { DigestPage } from './views/digest.js';
 import { byJob } from './digest/sort.js';
 import type { DigestRow, ReadNight } from './digest/types.js';
 
-// The reader is injected (issue #2 implements it); until it is merged, the digest route is
+// The reader is injected (issue #2 implements it); until it is merged, the digest routes are
 // not served.
 export function createApp(config: RigConfig = loadConfig(), reader?: ReadNight) {
   const app = new Hono();
 
   app.get('/health', (c) => c.json({ ok: true, lane: lane().id }));
+
+  if (reader) app.route('/api/digest', digestApi(config.runsDir, reader));
 
   app.get('/', (c) =>
     c.html(
